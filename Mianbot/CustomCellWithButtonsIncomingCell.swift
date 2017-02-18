@@ -9,8 +9,13 @@
 import Foundation
 import JSQMessagesViewController
 
+protocol buttonActionDelegate: class {
+    func candidateButtonTapped(candidate: String)
+}
 
 class CustomCellWithButtonsIncomingCell: JSQMessagesCollectionViewCellIncoming {
+    
+    weak var buttonDelegate: buttonActionDelegate?
     
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
@@ -31,14 +36,24 @@ class CustomCellWithButtonsIncomingCell: JSQMessagesCollectionViewCellIncoming {
     }
 
     func setupForMessage(reply: JSQMessage, candidates: [String]) {
-        let button = UIButton(frame: CGRect(x: 0, y: 30, width: 50, height: 30))
-        button.setTitle("Button 1", for: .normal)
-        button.backgroundColor = UIColor.purple
-        //buttonView.addSubview(button)
-        //messageView.text = reply.text
-        print("add bubble")
+        var offset: Int = 40
+        for i in 0...candidates.count-1 {
+            let button = UIButton(frame: CGRect(x: offset, y: 0, width: candidates[i].characters.count*25, height: 30))
+            button.setTitle(candidates[i], for: .normal)
+            button.setTitleColor(UIColor(red: 10/255, green:180/255, blue: 230/255, alpha: 1.0), for: .normal)
+            button.backgroundColor = .clear
+            button.layer.cornerRadius = 5
+            button.layer.borderWidth = 1
+            button.layer.borderColor = UIColor(red: 10/255, green:180/255, blue: 230/255, alpha: 1.0).cgColor
+            button.addTarget(self, action: #selector(buttonAction), for: .touchUpInside)
+            self.addSubview(button)
+            
+            offset += candidates[i].characters.count*25 + 5
+        }
     }
     
-
+    func buttonAction(sender: UIButton!) {
+        self.buttonDelegate?.candidateButtonTapped(candidate: sender.currentTitle!)
+    }
 }
 

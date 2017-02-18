@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import MapKit
 import Foundation
 import RxSwift
 import Alamofire
@@ -14,8 +15,9 @@ import SwiftyJSON
 import JSQMessagesViewController
 
 
-class ChatRoomViewController: JSQMessagesViewController {
 
+class ChatRoomViewController: JSQMessagesViewController, buttonActionDelegate {
+    
     let incomingBubble = JSQMessagesBubbleImageFactory().incomingMessagesBubbleImage(with: UIColor(red: 10/255, green:180/255, blue: 230/255, alpha: 1.0))
     let outgoingBubble = JSQMessagesBubbleImageFactory().outgoingMessagesBubbleImage(with: UIColor.lightGray)
     var messages = [JSQMessage]()
@@ -26,10 +28,13 @@ class ChatRoomViewController: JSQMessagesViewController {
     var isMessageWithButton: Bool = false
     var linkInReply = [String]()
     var linkKeyword = [String]()
+    var reply_tmp: String = "abc"
+    var candidate_tmp: String = ""
     
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        
         setup()
         linkInReply.append("")
         linkKeyword.append("")
@@ -115,7 +120,7 @@ class ChatRoomViewController: JSQMessagesViewController {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CustomCellWithButtonsIncomingCell.cellReuseIdentifier(), for: indexPath) as! CustomCellWithButtonsIncomingCell
             let candidatesArr = candidates[indexPath.row].components(separatedBy: "#")
             cell.setupForMessage(reply: messages[indexPath.row], candidates: candidatesArr)
-            print("custom")
+            cell.buttonDelegate = self
             return cell
         }
         return cell
@@ -129,7 +134,13 @@ class ChatRoomViewController: JSQMessagesViewController {
         linkInReply.append("")
         linkKeyword.append("")
         finishSendingMessage()
+        
+        print(messages)
+        print(candidates)
+        
         replyMessage(incomingMessage: message!)
+        print(messages)
+        print(candidates)
     }
     
     override func didPressAccessoryButton(_ sender: UIButton!) {
@@ -162,16 +173,25 @@ extension ChatRoomViewController {
             else { self.frontID = "" }
             
             if json["candidant"].stringValue != "" {
+                let reply = json["reply"].stringValue
+                self.linkInReply.append("")
+                self.linkKeyword.append("")
+                self.sendMessage(msg: reply, candidates: "")
+                self.linkInReply.append("")
+                self.linkKeyword.append("")
+                self.sendMessage(msg: "", candidates: json["candidant"].stringValue)
                 self.isMessageWithButton = true
+                return
             }
             else { self.isMessageWithButton = false }
             
-            var reply = json["reply"].stringValue
-            if reply.range(of: "<a href=\"") != nil {
-                let arr = reply.components(separatedBy: ["<", "\"", ">"])
+            //var reply = json["reply"].stringValue
+            self.reply_tmp = json["reply"].stringValue
+            if self.reply_tmp.range(of: "<a href=\"") != nil {
+                let arr = self.reply_tmp.components(separatedBy: ["<", "\"", ">"])
                 self.linkInReply.append(arr[2])
                 self.linkKeyword.append(arr[6])
-                reply = arr[0] + arr[6] + arr[8]
+                self.reply_tmp = arr[0] + arr[6] + arr[8]
             }
             else {
                 self.linkInReply.append("")
@@ -183,7 +203,7 @@ extension ChatRoomViewController {
                 if suggest.range(of: "<a href=\"") != nil {
                     let arr = suggest.components(separatedBy: "\"")
                     let url = arr[1]
-                    reply += "\n\(url)"
+                    self.reply_tmp += "\n\(url)"
                 }
             }
             
@@ -197,10 +217,9 @@ extension ChatRoomViewController {
                 }
                 
             }
-            
-            self.sendMessage(msg: reply, candidates: json["candidant"].stringValue)
+            //self.sendMessage(msg: reply, candidates: json["candidant"].stringValue)
         }
-    
+        self.sendMessage(msg: self.reply_tmp, candidates: self.candidate_tmp)
     }
     
     // MARK :- Alamofire HTTP Requests
@@ -260,20 +279,31 @@ extension ChatRoomViewController {
         let url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?key=AIzaSyCqELCql4e0HM-0yA177TrtHZpoDqzcs2o&language=zh-TW&rankby=distance&location=\(lat),\(lng)&keyword=\(keyword)"
         print(url)
         
-        Alamofire.request(url)
+        Alamofire.request(url, method: .get)
             .validate()
             .responseString{ response in
-                //let str = String(response.result.value!)
+                let str = String(response.result.value!)
                 print(response.result)
                 //completion(str!)
 
         }
     }
-   
     
+    func candidateButtonTapped(candidate: String){
+        let message = JSQMessage(senderId: senderId, senderDisplayName: senderDisplayName, date: messages.last?.date, text: candidate)
+        messages.append(message!)
+        candidates.append("")
+        linkInReply.append("")
+        linkKeyword.append("")
+        reloadMessagesView()
+        print(messages)
+        print(candidates)
+        replyMessage(incomingMessage: message!)
+        print(messages)
+        print(candidates)
+    }
+   
 }
-
-
 
 
 
