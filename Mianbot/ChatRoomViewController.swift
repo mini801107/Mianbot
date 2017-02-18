@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import Foundation
 import RxSwift
 import Alamofire
 import SwiftyJSON
@@ -18,14 +19,21 @@ class ChatRoomViewController: JSQMessagesViewController {
     let incomingBubble = JSQMessagesBubbleImageFactory().incomingMessagesBubbleImage(with: UIColor(red: 10/255, green:180/255, blue: 230/255, alpha: 1.0))
     let outgoingBubble = JSQMessagesBubbleImageFactory().outgoingMessagesBubbleImage(with: UIColor.lightGray)
     var messages = [JSQMessage]()
+    var candidates = [String]()
     var sessionID: String = ""
     var token: String = ""
+    var frontID: String = ""
+    var isMessageWithButton: Bool = false
+    var linkInReply = [String]()
+    var linkKeyword = [String]()
     
     override func viewDidLoad() {
         super.viewDidLoad()
 
         setup()
-        sendMessage(msg: "您好，我是Mianbot。\n請問需要什麼服務呢？")
+        linkInReply.append("")
+        linkKeyword.append("")
+        sendMessage(msg: "您好，我是Mianbot。\n請問需要什麼服務呢？", candidates: "")
         
         login() { response in
             self.sessionID = response
@@ -36,6 +44,10 @@ class ChatRoomViewController: JSQMessagesViewController {
             self.token = response
             print("token = \(self.token)")
         }
+        
+        
+        self.incomingCellIdentifier = CustomCellWithButtonsIncomingCell.cellReuseIdentifier()
+        self.collectionView!.register(CustomCellWithButtonsIncomingCell.nib(), forCellWithReuseIdentifier: CustomCellWithButtonsIncomingCell.cellReuseIdentifier())
     }
 
     override func didReceiveMemoryWarning() {
@@ -59,6 +71,7 @@ class ChatRoomViewController: JSQMessagesViewController {
     
     override func collectionView(_ collectionView: JSQMessagesCollectionView!, didDeleteMessageAt indexPath: IndexPath!) {
         messages.remove(at: indexPath.row)
+        candidates.remove(at: indexPath.row)
     }
     
     override func collectionView(_ collectionView: JSQMessagesCollectionView!, messageBubbleImageDataForItemAt indexPath: IndexPath!) -> JSQMessageBubbleImageDataSource! {
@@ -75,10 +88,46 @@ class ChatRoomViewController: JSQMessagesViewController {
         return nil
     }
     
+
+    
+    override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        //For URL link in UITextView
+        let cell = super.collectionView(collectionView, cellForItemAt: indexPath) as! JSQMessagesCollectionViewCell
+        cell.textView.dataDetectorTypes = UIDataDetectorTypes.all
+        
+        if (linkInReply.isEmpty == false) && (linkInReply[indexPath.row] != "") {
+            let reply = messages[indexPath.row].text!
+            if let range = reply.range(of: linkKeyword[indexPath.row]) {
+                let startPos = reply.distance(from: reply.startIndex, to: range.lowerBound)
+                let endPos = reply.distance(from: reply.startIndex, to: range.upperBound)
+    
+                let attributedString = NSMutableAttributedString(string: reply)
+                attributedString.addAttribute(NSLinkAttributeName, value: linkInReply[indexPath.row], range: NSRange(location: startPos, length: endPos-startPos))
+                attributedString.addAttributes([NSForegroundColorAttributeName: UIColor.white], range: NSRange(location: 0, length: reply.characters.count))
+                attributedString.addAttributes([NSFontAttributeName: UIFont.systemFont(ofSize: 16.0)], range: NSRange(location: 0, length: reply.characters.count))
+
+                cell.textView.attributedText = attributedString
+            }
+        }
+        
+
+        if isMessageWithButton && (candidates[indexPath.row] != "") {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CustomCellWithButtonsIncomingCell.cellReuseIdentifier(), for: indexPath) as! CustomCellWithButtonsIncomingCell
+            let candidatesArr = candidates[indexPath.row].components(separatedBy: "#")
+            cell.setupForMessage(reply: messages[indexPath.row], candidates: candidatesArr)
+            print("custom")
+            return cell
+        }
+        return cell
+    }
+    
     // MARK :- JSQMessagesToolbarContentView Toolbar
     override func didPressSend(_ button: UIButton!, withMessageText text: String!, senderId: String!, senderDisplayName: String!, date: Date!) {
         let message = JSQMessage(senderId: senderId, senderDisplayName: senderDisplayName, date: date, text: text)
         messages.append(message!)
+        candidates.append("")
+        linkInReply.append("")
+        linkKeyword.append("")
         finishSendingMessage()
         replyMessage(incomingMessage: message!)
     }
@@ -95,12 +144,66 @@ extension ChatRoomViewController {
             self.senderDisplayName = UIDevice.current.identifierForVendor?.uuidString
     }
     
-    func sendMessage(msg: String) {
+    func sendMessage(msg: String, candidates: String) {
         let message = JSQMessage(senderId: "Mainbot", displayName: "Mainbot", text: msg)
         messages.append(message!)
+        self.candidates.append(candidates)
         reloadMessagesView()
     }
     
+    func replyMessage(incomingMessage: JSQMessage) {
+        getResponse(msg: incomingMessage.text, taskId: frontID) { response in
+            let JSONData = response.data(using: String.Encoding.utf8)
+            let json = JSON(data: JSONData!)
+            
+            if json["ID"].stringValue != "" {
+                self.frontID = json["ID"].stringValue
+            }
+            else { self.frontID = "" }
+            
+            if json["candidant"].stringValue != "" {
+                self.isMessageWithButton = true
+            }
+            else { self.isMessageWithButton = false }
+            
+            var reply = json["reply"].stringValue
+            if reply.range(of: "<a href=\"") != nil {
+                let arr = reply.components(separatedBy: ["<", "\"", ">"])
+                self.linkInReply.append(arr[2])
+                self.linkKeyword.append(arr[6])
+                reply = arr[0] + arr[6] + arr[8]
+            }
+            else {
+                self.linkInReply.append("")
+                self.linkKeyword.append("")
+            }
+            
+            if json["suggest"].stringValue != "" {
+                let suggest = json["suggest"].stringValue
+                if suggest.range(of: "<a href=\"") != nil {
+                    let arr = suggest.components(separatedBy: "\"")
+                    let url = arr[1]
+                    reply += "\n\(url)"
+                }
+            }
+            
+            if json["target"].stringValue != "" {
+                let target = json["target"].stringValue
+                let lng = json["longitude"].stringValue
+                let lat = json["latitude"].stringValue
+                
+                self.nearbyPlaces(keyword: target, lat: lat, lng: lng) { response in
+                
+                }
+                
+            }
+            
+            self.sendMessage(msg: reply, candidates: json["candidant"].stringValue)
+        }
+    
+    }
+    
+    // MARK :- Alamofire HTTP Requests
     //Login and fetch session cookie
     func login(completion:@escaping (String) -> Void) {
         let par = ["account": "appuser", "password": "app123"]
@@ -147,24 +250,28 @@ extension ChatRoomViewController {
             .validate()
             .responseString{ response in
                 let str = String(response.result.value!)
+                print(str)
                 completion(str!)
         }
     }
     
-    func replyMessage(incomingMessage: JSQMessage) {
-        getResponse(msg: incomingMessage.text, taskId: "") { response in
-            let JSONData = response.data(using: String.Encoding.utf8)
-            let json = JSON(data: JSONData!)
-            let reply = json["reply"].stringValue
-            self.sendMessage(msg: reply)
+    //Google map nearby places
+    func nearbyPlaces(keyword: String, lat: String, lng: String, completion: @escaping (String) -> Void) {
+        let url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?key=AIzaSyCqELCql4e0HM-0yA177TrtHZpoDqzcs2o&language=zh-TW&rankby=distance&location=\(lat),\(lng)&keyword=\(keyword)"
+        print(url)
+        
+        Alamofire.request(url)
+            .validate()
+            .responseString{ response in
+                //let str = String(response.result.value!)
+                print(response.result)
+                //completion(str!)
+
         }
-    
     }
+   
     
 }
-
-
-
 
 
 
