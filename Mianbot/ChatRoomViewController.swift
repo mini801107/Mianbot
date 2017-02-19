@@ -21,15 +21,12 @@ class ChatRoomViewController: JSQMessagesViewController, buttonActionDelegate {
     let incomingBubble = JSQMessagesBubbleImageFactory().incomingMessagesBubbleImage(with: UIColor(red: 10/255, green:180/255, blue: 230/255, alpha: 1.0))
     let outgoingBubble = JSQMessagesBubbleImageFactory().outgoingMessagesBubbleImage(with: UIColor.lightGray)
     var messages = [JSQMessage]()
-    var candidates = [String]()
     var sessionID: String = ""
     var token: String = ""
     var frontID: String = ""
-    var isMessageWithButton: Bool = false
+    var isMessageWithButton = [Bool]()
     var linkInReply = [String]()
     var linkKeyword = [String]()
-    var reply_tmp: String = "abc"
-    var candidate_tmp: String = ""
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -38,7 +35,8 @@ class ChatRoomViewController: JSQMessagesViewController, buttonActionDelegate {
         setup()
         linkInReply.append("")
         linkKeyword.append("")
-        sendMessage(msg: "您好，我是Mianbot。\n請問需要什麼服務呢？", candidates: "")
+        isMessageWithButton.append(false)
+        sendMessage(msg: "您好，我是Mianbot。\n請問需要什麼服務呢？")
         
         login() { response in
             self.sessionID = response
@@ -62,6 +60,13 @@ class ChatRoomViewController: JSQMessagesViewController, buttonActionDelegate {
     
     func reloadMessagesView() {
         self.collectionView?.reloadData()
+        
+        print("[messages]\n\(messages)")
+        print("[isMessageWithButton]\n\(isMessageWithButton)")
+        print("[linkInReply]\n\(linkInReply)")
+        print("[linkKeyword]\n\(linkKeyword)")
+        print("--------------------------------------------------------------------------------")
+      
     }
     
     // MARK :- JSQMessagesCollectionView Data Source
@@ -76,7 +81,8 @@ class ChatRoomViewController: JSQMessagesViewController, buttonActionDelegate {
     
     override func collectionView(_ collectionView: JSQMessagesCollectionView!, didDeleteMessageAt indexPath: IndexPath!) {
         messages.remove(at: indexPath.row)
-        candidates.remove(at: indexPath.row)
+        isMessageWithButton.remove(at: indexPath.row)
+        print("delete")
     }
     
     override func collectionView(_ collectionView: JSQMessagesCollectionView!, messageBubbleImageDataForItemAt indexPath: IndexPath!) -> JSQMessageBubbleImageDataSource! {
@@ -100,6 +106,16 @@ class ChatRoomViewController: JSQMessagesViewController, buttonActionDelegate {
         let cell = super.collectionView(collectionView, cellForItemAt: indexPath) as! JSQMessagesCollectionViewCell
         cell.textView.dataDetectorTypes = UIDataDetectorTypes.all
         
+        /*if isMessageWithButton[indexPath.row] {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CustomCellWithButtonsIncomingCell.cellReuseIdentifier(), for: indexPath) as! CustomCellWithButtonsIncomingCell
+            let candidatesArr = messages[indexPath.row].text.components(separatedBy: "#")
+            cell.setupForMessage(candidates: candidatesArr)
+            cell.buttonDelegate = self
+            print("In isMessageWithButton, call setupForMesage, indexPath.row=\(indexPath.row)")
+            
+            return cell
+        }*/
+        
         if (linkInReply.isEmpty == false) && (linkInReply[indexPath.row] != "") {
             let reply = messages[indexPath.row].text!
             if let range = reply.range(of: linkKeyword[indexPath.row]) {
@@ -115,14 +131,6 @@ class ChatRoomViewController: JSQMessagesViewController, buttonActionDelegate {
             }
         }
         
-
-        if isMessageWithButton && (candidates[indexPath.row] != "") {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CustomCellWithButtonsIncomingCell.cellReuseIdentifier(), for: indexPath) as! CustomCellWithButtonsIncomingCell
-            let candidatesArr = candidates[indexPath.row].components(separatedBy: "#")
-            cell.setupForMessage(reply: messages[indexPath.row], candidates: candidatesArr)
-            cell.buttonDelegate = self
-            return cell
-        }
         return cell
     }
     
@@ -130,17 +138,12 @@ class ChatRoomViewController: JSQMessagesViewController, buttonActionDelegate {
     override func didPressSend(_ button: UIButton!, withMessageText text: String!, senderId: String!, senderDisplayName: String!, date: Date!) {
         let message = JSQMessage(senderId: senderId, senderDisplayName: senderDisplayName, date: date, text: text)
         messages.append(message!)
-        candidates.append("")
+        isMessageWithButton.append(false)
         linkInReply.append("")
         linkKeyword.append("")
         finishSendingMessage()
-        
-        print(messages)
-        print(candidates)
-        
+        reloadMessagesView()
         replyMessage(incomingMessage: message!)
-        print(messages)
-        print(candidates)
     }
     
     override func didPressAccessoryButton(_ sender: UIButton!) {
@@ -155,10 +158,18 @@ extension ChatRoomViewController {
             self.senderDisplayName = UIDevice.current.identifierForVendor?.uuidString
     }
     
-    func sendMessage(msg: String, candidates: String) {
+    func sendMessage(msg: String) {
         let message = JSQMessage(senderId: "Mainbot", displayName: "Mainbot", text: msg)
         messages.append(message!)
-        self.candidates.append(candidates)
+        reloadMessagesView()
+    }
+    
+    func sendButton(btn: String) {
+        let btnMessage = JSQMessage(senderId: "Mainbot", displayName: "Mainbot", text: btn)
+        messages.append(btnMessage!)
+        isMessageWithButton.append(true)
+        linkInReply.append("")
+        linkKeyword.append("")
         reloadMessagesView()
     }
     
@@ -166,6 +177,7 @@ extension ChatRoomViewController {
         getResponse(msg: incomingMessage.text, taskId: frontID) { response in
             let JSONData = response.data(using: String.Encoding.utf8)
             let json = JSON(data: JSONData!)
+            var additionalBtn: String = ""
             
             if json["ID"].stringValue != "" {
                 self.frontID = json["ID"].stringValue
@@ -173,25 +185,17 @@ extension ChatRoomViewController {
             else { self.frontID = "" }
             
             if json["candidant"].stringValue != "" {
-                let reply = json["reply"].stringValue
-                self.linkInReply.append("")
-                self.linkKeyword.append("")
-                self.sendMessage(msg: reply, candidates: "")
-                self.linkInReply.append("")
-                self.linkKeyword.append("")
-                self.sendMessage(msg: "", candidates: json["candidant"].stringValue)
-                self.isMessageWithButton = true
-                return
+                additionalBtn = json["candidant"].stringValue
             }
-            else { self.isMessageWithButton = false }
+            self.isMessageWithButton.append(false)
             
-            //var reply = json["reply"].stringValue
-            self.reply_tmp = json["reply"].stringValue
-            if self.reply_tmp.range(of: "<a href=\"") != nil {
-                let arr = self.reply_tmp.components(separatedBy: ["<", "\"", ">"])
+            var reply = json["reply"].stringValue
+            reply = json["reply"].stringValue
+            if reply.range(of: "<a href=\"") != nil {
+                let arr = reply.components(separatedBy: ["<", "\"", ">"])
                 self.linkInReply.append(arr[2])
                 self.linkKeyword.append(arr[6])
-                self.reply_tmp = arr[0] + arr[6] + arr[8]
+                reply = arr[0] + arr[6] + arr[8]
             }
             else {
                 self.linkInReply.append("")
@@ -203,7 +207,7 @@ extension ChatRoomViewController {
                 if suggest.range(of: "<a href=\"") != nil {
                     let arr = suggest.components(separatedBy: "\"")
                     let url = arr[1]
-                    self.reply_tmp += "\n\(url)"
+                    reply += "\n\(url)"
                 }
             }
             
@@ -217,9 +221,12 @@ extension ChatRoomViewController {
                 }
                 
             }
-            //self.sendMessage(msg: reply, candidates: json["candidant"].stringValue)
+        
+            self.sendMessage(msg: reply)
+            if additionalBtn != "" {
+                self.sendButton(btn: additionalBtn)
+            }
         }
-        self.sendMessage(msg: self.reply_tmp, candidates: self.candidate_tmp)
     }
     
     // MARK :- Alamofire HTTP Requests
@@ -291,16 +298,13 @@ extension ChatRoomViewController {
     
     func candidateButtonTapped(candidate: String){
         let message = JSQMessage(senderId: senderId, senderDisplayName: senderDisplayName, date: messages.last?.date, text: candidate)
+        //add reply user choosed
         messages.append(message!)
-        candidates.append("")
+        isMessageWithButton.append(false)
         linkInReply.append("")
         linkKeyword.append("")
         reloadMessagesView()
-        print(messages)
-        print(candidates)
         replyMessage(incomingMessage: message!)
-        print(messages)
-        print(candidates)
     }
    
 }

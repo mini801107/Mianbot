@@ -35,7 +35,7 @@ class CustomCellWithButtonsIncomingCell: JSQMessagesCollectionViewCellIncoming {
         return "CustomCellWithButtonsIncomingCell"
     }
 
-    func setupForMessage(reply: JSQMessage, candidates: [String]) {
+    func setupForMessage(candidates: [String]) {
         var offset: Int = 40
         for i in 0...candidates.count-1 {
             let button = UIButton(frame: CGRect(x: offset, y: 0, width: candidates[i].characters.count*25, height: 30))
