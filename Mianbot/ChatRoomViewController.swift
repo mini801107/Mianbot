@@ -57,9 +57,11 @@ class ChatRoomViewController: JSQMessagesViewController, SFSpeechRecognizerDeleg
         self.incomingCellIdentifier = CustomCellWithButtonsIncomingCell.cellReuseIdentifier()
         self.collectionView!.register(CustomCellWithButtonsIncomingCell.nib(), forCellWithReuseIdentifier: CustomCellWithButtonsIncomingCell.cellReuseIdentifier())
     
+        print(self.inputToolbar.contentView.frame)
         self.inputToolbar.contentView.rightBarButtonItemWidth = 50
         self.inputToolbar.contentView.leftBarButtonItemWidth = 30
-        self.inputToolbar.contentView.leftBarButtonItem.setImage(UIImage(named: "microphone"), for: .normal)
+        self.inputToolbar.contentView.leftBarButtonItem.setImage(UIImage(named: "recoder_stop"), for: .normal)
+        self.inputToolbar.contentView.leftBarButtonItem.setImage(UIImage(named: "recoder_tapped"), for: .focused)
         self.inputToolbar.contentView.leftBarButtonItem.addTarget(self, action: #selector(recorderTapped), for: .touchUpInside)
         
         //Authorize the speech recognizer
@@ -194,9 +196,11 @@ class ChatRoomViewController: JSQMessagesViewController, SFSpeechRecognizerDeleg
             self.inputToolbar.contentView.leftBarButtonItem.isEnabled = false
             self.inputToolbar.contentView.rightBarButtonItem.isEnabled = true
             self.inputToolbar.contentView.textView.text.append(self.textFromVoice)
+            self.inputToolbar.contentView.leftBarButtonItem.setImage(UIImage(named: "recoder_stop"), for: .normal)
             print("Stop Recording")
         } else {
             self.textFromVoice = ""
+            self.inputToolbar.contentView.leftBarButtonItem.setImage(UIImage(named: "recoder_start"), for: .normal)
             startRecording()
             print("Start Recording")
         }
