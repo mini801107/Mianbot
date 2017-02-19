@@ -57,11 +57,10 @@ class ChatRoomViewController: JSQMessagesViewController, SFSpeechRecognizerDeleg
         self.incomingCellIdentifier = CustomCellWithButtonsIncomingCell.cellReuseIdentifier()
         self.collectionView!.register(CustomCellWithButtonsIncomingCell.nib(), forCellWithReuseIdentifier: CustomCellWithButtonsIncomingCell.cellReuseIdentifier())
     
-        print(self.inputToolbar.contentView.frame)
         self.inputToolbar.contentView.rightBarButtonItemWidth = 50
         self.inputToolbar.contentView.leftBarButtonItemWidth = 30
         self.inputToolbar.contentView.leftBarButtonItem.setImage(UIImage(named: "recoder_stop"), for: .normal)
-        self.inputToolbar.contentView.leftBarButtonItem.setImage(UIImage(named: "recoder_tapped"), for: .focused)
+        self.inputToolbar.contentView.leftBarButtonItem.setImage(UIImage(named: "recoder_tapped"), for: .highlighted)
         self.inputToolbar.contentView.leftBarButtonItem.addTarget(self, action: #selector(recorderTapped), for: .touchUpInside)
         
         //Authorize the speech recognizer
@@ -133,7 +132,13 @@ class ChatRoomViewController: JSQMessagesViewController, SFSpeechRecognizerDeleg
     }
     
     override func collectionView(_ collectionView: JSQMessagesCollectionView!, avatarImageDataForItemAt indexPath: IndexPath!) -> JSQMessageAvatarImageDataSource! {
-        return nil
+        let data = messages[indexPath.row]
+        if data.senderId == self.senderId {
+            return nil
+        }
+        
+        let avatar = JSQMessagesAvatarImage(placeholder: UIImage(named: "avatar_bot"))
+        return avatar
     }
     
 
