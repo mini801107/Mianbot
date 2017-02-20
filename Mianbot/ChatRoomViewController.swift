@@ -97,11 +97,11 @@ class ChatRoomViewController: JSQMessagesViewController, SFSpeechRecognizerDeleg
     func reloadMessagesView() {
         self.collectionView?.reloadData()
         
-        print("[messages]\n\(messages)")
-        print("[isMessageWithButton]\n\(isMessageWithButton)")
-        print("[linkInReply]\n\(linkInReply)")
-        print("[linkKeyword]\n\(linkKeyword)")
-        print("--------------------------------------------------------------------------------")
+        //print("[messages]\n\(messages)")
+        //print("[isMessageWithButton]\n\(isMessageWithButton)")
+        //print("[linkInReply]\n\(linkInReply)")
+        //print("[linkKeyword]\n\(linkKeyword)")
+        //print("--------------------------------------------------------------------------------")
       
     }
     
@@ -171,6 +171,22 @@ class ChatRoomViewController: JSQMessagesViewController, SFSpeechRecognizerDeleg
 
                 cell.textView.attributedText = attributedString
             }
+        }
+        else if linkKeyword[indexPath.row] == "movie" {
+            let reply = messages[indexPath.row].text!
+            let movieNameArr = reply.components(separatedBy: "\n")
+            let attributedString = NSMutableAttributedString(string: reply)
+            for i in 1...movieNameArr.count-1 {
+                if let range = reply.range(of: movieNameArr[i]) {
+                    let startPos = reply.distance(from: reply.startIndex, to: range.lowerBound)
+                    let endPos = reply.distance(from: reply.startIndex, to: range.upperBound)
+                    
+                    attributedString.addAttribute(NSLinkAttributeName, value: "https://www.google.com.tw/search?q="+movieNameArr[i], range: NSRange(location: startPos, length: endPos-startPos))
+                    attributedString.addAttributes([NSForegroundColorAttributeName: UIColor.white], range: NSRange(location: 0, length: reply.characters.count))
+                    attributedString.addAttributes([NSFontAttributeName: UIFont.systemFont(ofSize: 16.0)], range: NSRange(location: 0, length: reply.characters.count))
+                }
+            }
+            cell.textView.attributedText = attributedString
         }
         
         return cell
@@ -341,6 +357,25 @@ extension ChatRoomViewController {
                     let arr = suggest.components(separatedBy: "\"")
                     let url = arr[1]
                     reply += "\n\(url)"
+                }
+                else if suggest.range(of: "列車編號") != nil {
+                    let arr = suggest.components(separatedBy: "$\n")
+                    for element in arr {
+                        if element != "" {
+                            reply += "\n\(element)"
+                        }
+                    }
+                }
+                else if suggest.range(of: "$") != nil {
+                    let arr = suggest.components(separatedBy: "$\n")
+                    var i: Int = 0
+                    for element in arr {
+                        if (element != "") && (i<5) {
+                            reply += "\n\(element)"
+                            i += 1
+                        }
+                    }
+                    self.linkKeyword[self.linkKeyword.count-1] = "movie"
                 }
             }
             
