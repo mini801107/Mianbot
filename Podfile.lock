@@ -1,5 +1,12 @@
 PODS:
   - Alamofire (4.3.0)
+  - GoogleMaps (2.2.0):
+    - GoogleMaps/Maps (= 2.2.0)
+  - GoogleMaps/Base (2.2.0)
+  - GoogleMaps/Maps (2.2.0):
+    - GoogleMaps/Base
+  - GooglePlaces (2.2.0):
+    - GoogleMaps/Base (= 2.2.0)
   - JSQMessagesViewController (7.3.4):
     - JSQSystemSoundPlayer (~> 2.0.1)
   - JSQSystemSoundPlayer (2.0.1)
@@ -10,6 +17,8 @@ PODS:
 
 DEPENDENCIES:
   - Alamofire (~> 4.3)
+  - GoogleMaps
+  - GooglePlaces
   - JSQMessagesViewController (~> 7.3.4)
   - RxCocoa (~> 3.0)
   - RxSwift (~> 3.0)
@@ -17,12 +26,14 @@ DEPENDENCIES:
 
 SPEC CHECKSUMS:
   Alamofire: 856a113053a7bc9cbe5d6367a555d773fc5cfef7
+  GoogleMaps: 104c418d61ab8a05dff06ed0784c25ea9d37da45
+  GooglePlaces: bca867d5e9da15384c794b945e4226848bc6e9d9
   JSQMessagesViewController: 39fed975e3c9f8eba7292071e29eeb541d105e66
   JSQSystemSoundPlayer: c5850e77a4363ffd374cd851154b9af93264ed8d
   RxCocoa: ccdf43101a70407097a29082f648ba1676075b30
   RxSwift: 46574f70d416b7923c237195939cc488a7fbf3a0
   SwiftyJSON: c2842d878f95482ffceec5709abc3d05680c0220
 
-PODFILE CHECKSUM: 42ab6f06a59a052610f8aa44b3641ae6dfd4779c
+PODFILE CHECKSUM: 85a282d6e9c182eef59ac7d86e27f1e8b1967b94
 
 COCOAPODS: 1.2.0

@@ -15,6 +15,9 @@
 		6B10489C1E545B2E00BF5A43 /* MianbotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B10489B1E545B2E00BF5A43 /* MianbotTests.swift */; };
 		6B1048A71E545B2E00BF5A43 /* MianbotUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B1048A61E545B2E00BF5A43 /* MianbotUITests.swift */; };
 		6B1048B71E549A2000BF5A43 /* ChatRoomViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B1048B61E549A2000BF5A43 /* ChatRoomViewController.swift */; };
+		6B47DA3E1E5C6CA30072F7E6 /* TableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B47DA3D1E5C6CA30072F7E6 /* TableViewController.swift */; };
+		6B47DA401E5C6CC90072F7E6 /* MapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B47DA3F1E5C6CC90072F7E6 /* MapViewController.swift */; };
+		6B47DA421E5C6D540072F7E6 /* CustomCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B47DA411E5C6D540072F7E6 /* CustomCell.swift */; };
 		6BF5CA691E573E7300C7F892 /* CustomCellWithButtonsIncomingCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BF5CA681E573E7300C7F892 /* CustomCellWithButtonsIncomingCell.swift */; };
 		6BF5CA6B1E5740C600C7F892 /* CustomCellWithButtonsIncomingCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6BF5CA6A1E5740C600C7F892 /* CustomCellWithButtonsIncomingCell.xib */; };
 /* End PBXBuildFile section */
@@ -51,6 +54,9 @@
 		6B1048A61E545B2E00BF5A43 /* MianbotUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MianbotUITests.swift; sourceTree = "<group>"; };
 		6B1048A81E545B2E00BF5A43 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		6B1048B61E549A2000BF5A43 /* ChatRoomViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatRoomViewController.swift; sourceTree = "<group>"; };
+		6B47DA3D1E5C6CA30072F7E6 /* TableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TableViewController.swift; sourceTree = "<group>"; };
+		6B47DA3F1E5C6CC90072F7E6 /* MapViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MapViewController.swift; sourceTree = "<group>"; };
+		6B47DA411E5C6D540072F7E6 /* CustomCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomCell.swift; sourceTree = "<group>"; };
 		6BF5CA681E573E7300C7F892 /* CustomCellWithButtonsIncomingCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomCellWithButtonsIncomingCell.swift; sourceTree = "<group>"; };
 		6BF5CA6A1E5740C600C7F892 /* CustomCellWithButtonsIncomingCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = CustomCellWithButtonsIncomingCell.xib; sourceTree = "<group>"; };
 		79756121E419B6470E31CB62 /* Pods-Mianbot.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Mianbot.release.xcconfig"; path = "Pods/Target Support Files/Pods-Mianbot/Pods-Mianbot.release.xcconfig"; sourceTree = "<group>"; };
@@ -118,6 +124,9 @@
 			children = (
 				6B1048861E545B2E00BF5A43 /* AppDelegate.swift */,
 				6B1048B61E549A2000BF5A43 /* ChatRoomViewController.swift */,
+				6B47DA3D1E5C6CA30072F7E6 /* TableViewController.swift */,
+				6B47DA3F1E5C6CC90072F7E6 /* MapViewController.swift */,
+				6B47DA411E5C6D540072F7E6 /* CustomCell.swift */,
 				6BF5CA681E573E7300C7F892 /* CustomCellWithButtonsIncomingCell.swift */,
 				6BF5CA6A1E5740C600C7F892 /* CustomCellWithButtonsIncomingCell.xib */,
 				6B10488A1E545B2E00BF5A43 /* Main.storyboard */,
@@ -347,6 +356,9 @@
 				6B1048871E545B2E00BF5A43 /* AppDelegate.swift in Sources */,
 				6BF5CA691E573E7300C7F892 /* CustomCellWithButtonsIncomingCell.swift in Sources */,
 				6B1048B71E549A2000BF5A43 /* ChatRoomViewController.swift in Sources */,
+				6B47DA401E5C6CC90072F7E6 /* MapViewController.swift in Sources */,
+				6B47DA421E5C6D540072F7E6 /* CustomCell.swift in Sources */,
+				6B47DA3E1E5C6CA30072F7E6 /* TableViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

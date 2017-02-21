@@ -8,6 +8,7 @@
 
 import UIKit
 import MapKit
+import CoreLocation
 import Speech
 import Foundation
 import RxSwift
@@ -86,7 +87,6 @@ class ChatRoomViewController: JSQMessagesViewController, SFSpeechRecognizerDeleg
                 self.inputToolbar.contentView.leftBarButtonItem.isEnabled = isButtonEnabled
             }
         }
-        
     }
 
     override func didReceiveMemoryWarning() {
@@ -173,7 +173,7 @@ class ChatRoomViewController: JSQMessagesViewController, SFSpeechRecognizerDeleg
             }
         }
         else if linkKeyword[indexPath.row] == "movie" {
-            let reply = messages[indexPath.row].text!
+            /*let reply = messages[indexPath.row].text!
             let movieNameArr = reply.components(separatedBy: "\n")
             let attributedString = NSMutableAttributedString(string: reply)
             for i in 1...movieNameArr.count-1 {
@@ -186,7 +186,7 @@ class ChatRoomViewController: JSQMessagesViewController, SFSpeechRecognizerDeleg
                     attributedString.addAttributes([NSFontAttributeName: UIFont.systemFont(ofSize: 16.0)], range: NSRange(location: 0, length: reply.characters.count))
                 }
             }
-            cell.textView.attributedText = attributedString
+            cell.textView.attributedText = attributedString*/
         }
         
         return cell
@@ -381,13 +381,12 @@ extension ChatRoomViewController {
             
             if json["target"].stringValue != "" {
                 let target = json["target"].stringValue
-                let lng = json["longitude"].stringValue
-                let lat = json["latitude"].stringValue
+                let lng = json["longitude"].floatValue
+                let lat = json["latitude"].floatValue
                 
-                self.nearbyPlaces(keyword: target, lat: lat, lng: lng) { response in
-                
+                self.searchNearbyPlaces(keyword: target, lat: lat, lng: lng) { mapItems in
+                    self.performSegue(withIdentifier: "ChatroomToTableSegue", sender: mapItems)
                 }
-                
             }
         
             self.sendMessage(msg: reply)
@@ -449,19 +448,26 @@ extension ChatRoomViewController {
         }
     }
     
-    //Google map nearby places
-    func nearbyPlaces(keyword: String, lat: String, lng: String, completion: @escaping (String) -> Void) {
-        let url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?key=AIzaSyCqELCql4e0HM-0yA177TrtHZpoDqzcs2o&language=zh-TW&rankby=distance&location=\(lat),\(lng)&keyword=\(keyword)"
-        print(url)
+    //Nearby places searching via Mapkit
+    func searchNearbyPlaces(keyword: String, lat: Float, lng: Float, completion:@escaping ([MKMapItem]) -> Void) {
+        let request = MKLocalSearchRequest()
+        let center = CLLocationCoordinate2D(latitude: CLLocationDegrees(lat), longitude: CLLocationDegrees(lng))
+        let region = MKCoordinateRegion(center: center, span: MKCoordinateSpan(latitudeDelta: 0.25, longitudeDelta: 0.25))
         
-        Alamofire.request(url, method: .get)
-            .validate()
-            .responseString{ response in
-                let str = String(response.result.value!)
-                print(response.result)
-                //completion(str!)
-
-        }
+        request.naturalLanguageQuery = keyword
+        request.region = region
+        
+        let search = MKLocalSearch(request: request)
+        search.start(completionHandler: {(response, error) in
+            if error != nil {
+                print("Error occured in search:\(error!.localizedDescription)")
+            } else if response!.mapItems.count == 0 {
+                print("No matches found")
+            } else {
+                print("Matches found")
+            }
+            completion(response!.mapItems)
+        })
     }
     
     func candidateButtonTapped(candidate: String){
@@ -475,6 +481,14 @@ extension ChatRoomViewController {
         replyMessage(incomingMessage: message!)
     }
     
+    // MARK : - Peform segue to MapViewController
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "ChatroomToTableSegue" {
+            if let destinationVC = segue.destination as? TableViewController {
+                destinationVC.mapItems = sender as! [MKMapItem]
+            }
+        }
+    }
 
 }
 
