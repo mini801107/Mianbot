@@ -24,16 +24,6 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
-		<key>RxCocoa.xcscheme</key>
-		<dict>
-			<key>isShown</key>
-			<false/>
-		</dict>
-		<key>RxSwift.xcscheme</key>
-		<dict>
-			<key>isShown</key>
-			<false/>
-		</dict>
 		<key>SwiftyJSON.xcscheme</key>
 		<dict>
 			<key>isShown</key>
@@ -42,22 +32,7 @@
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
-		<key>088AFAADE4272AE707E442B494E7E614</key>
-		<dict>
-			<key>primary</key>
-			<true/>
-		</dict>
-		<key>15D1ACFE0E39D3F62B2715F4A46EF788</key>
-		<dict>
-			<key>primary</key>
-			<true/>
-		</dict>
-		<key>2FA0F9CE1F5A90A0FD7739E8380BC0A8</key>
-		<dict>
-			<key>primary</key>
-			<true/>
-		</dict>
-		<key>4A20580E33520A75C898276275629CCF</key>
+		<key>4D4A160F5844323CBBBF6FC0AB25B07F</key>
 		<dict>
 			<key>primary</key>
 			<true/>
@@ -73,6 +48,11 @@
 			<true/>
 		</dict>
 		<key>D0581AF7BF4A6DA140D280B19ECC7BFF</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>D6272844F33F29CBAEE75990C8BDDC21</key>
 		<dict>
 			<key>primary</key>
 			<true/>

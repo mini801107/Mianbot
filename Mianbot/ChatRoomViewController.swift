@@ -11,7 +11,6 @@ import MapKit
 import CoreLocation
 import Speech
 import Foundation
-import RxSwift
 import Alamofire
 import SwiftyJSON
 import JSQMessagesViewController
@@ -173,20 +172,22 @@ class ChatRoomViewController: JSQMessagesViewController, SFSpeechRecognizerDeleg
             }
         }
         else if linkKeyword[indexPath.row] == "movie" {
-            /*let reply = messages[indexPath.row].text!
+            let reply = messages[indexPath.row].text!
             let movieNameArr = reply.components(separatedBy: "\n")
             let attributedString = NSMutableAttributedString(string: reply)
             for i in 1...movieNameArr.count-1 {
                 if let range = reply.range(of: movieNameArr[i]) {
                     let startPos = reply.distance(from: reply.startIndex, to: range.lowerBound)
                     let endPos = reply.distance(from: reply.startIndex, to: range.upperBound)
+                    let query = movieNameArr[i].addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
                     
-                    attributedString.addAttribute(NSLinkAttributeName, value: "https://www.google.com.tw/search?q="+movieNameArr[i], range: NSRange(location: startPos, length: endPos-startPos))
+                    attributedString.addAttribute(NSLinkAttributeName, value: "https://www.google.com.tw/search?q="+query!, range: NSRange(location: startPos, length: endPos-startPos))
+                    //attributedString.addAttribute(NSLinkAttributeName, value: "https://www.youtube.com/results?search_query="+query!, range: NSRange(location: startPos, length: endPos-startPos))
                     attributedString.addAttributes([NSForegroundColorAttributeName: UIColor.white], range: NSRange(location: 0, length: reply.characters.count))
                     attributedString.addAttributes([NSFontAttributeName: UIFont.systemFont(ofSize: 16.0)], range: NSRange(location: 0, length: reply.characters.count))
                 }
             }
-            cell.textView.attributedText = attributedString*/
+            cell.textView.attributedText = attributedString
         }
         
         return cell
