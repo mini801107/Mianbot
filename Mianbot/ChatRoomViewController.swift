@@ -357,7 +357,15 @@ extension ChatRoomViewController {
                 if suggest.range(of: "<a href=\"") != nil {
                     let arr = suggest.components(separatedBy: "\"")
                     let url = arr[1]
-                    reply += "\n\(url)"
+                    
+                    if url.containsChineseCharacters {
+                        let arr2 = url.components(separatedBy: "=")
+                        let query = arr2[1].addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+                        reply += "\n\(arr2[0])=\(query!)"
+                    }
+                    else {
+                        reply += "\n\(url)"
+                    }
                 }
                 else if suggest.range(of: "列車編號") != nil {
                     let arr = suggest.components(separatedBy: "$\n")
@@ -492,6 +500,14 @@ extension ChatRoomViewController {
     }
 
 }
+
+
+extension String {
+    var containsChineseCharacters: Bool {
+        return self.range(of: "\\p{Han}", options: .regularExpression) != nil
+    }
+}
+
 
 
 
