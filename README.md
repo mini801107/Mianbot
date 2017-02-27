@@ -8,7 +8,7 @@ A chatbot on IOS system, designed for extension of graduation project. Supported
 
 
 ## Integration
-CocoaPods (iOS 8+, OS X 10.9+)
+CocoaPods (iOS 10+, OS X 10.9+)
 <pre><code>
 use_frameworks!
 
