@@ -3,7 +3,7 @@ A chatbot on IOS system, designed for extension of graduation project. Supported
 
 ## Requirements
 
-* iOS 8.0+ | macOS 10.10+ 
+* iOS 10.0+ | macOS 10.10+ 
 * Xcode 8
 
 
