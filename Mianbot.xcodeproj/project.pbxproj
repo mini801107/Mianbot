@@ -235,7 +235,7 @@
 				TargetAttributes = {
 					6B1048821E545B2E00BF5A43 = {
 						CreatedOnToolsVersion = 8.2.1;
-						DevelopmentTeam = 89YTWF7WPK;
+						DevelopmentTeam = PR48UG8FPN;
 						ProvisioningStyle = Automatic;
 					};
 					6B1048961E545B2E00BF5A43 = {
@@ -511,11 +511,11 @@
 			baseConfigurationReference = 4D43B49C837A2DD1BA1EB5DD /* Pods-Mianbot.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				DEVELOPMENT_TEAM = 89YTWF7WPK;
+				DEVELOPMENT_TEAM = PR48UG8FPN;
 				INFOPLIST_FILE = Mianbot/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = NCKU.Mianbot;
+				PRODUCT_BUNDLE_IDENTIFIER = "edu.NCKU-WMMKS.Mainbot";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 3.0;
 			};
@@ -526,11 +526,11 @@
 			baseConfigurationReference = 79756121E419B6470E31CB62 /* Pods-Mianbot.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				DEVELOPMENT_TEAM = 89YTWF7WPK;
+				DEVELOPMENT_TEAM = PR48UG8FPN;
 				INFOPLIST_FILE = Mianbot/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = NCKU.Mianbot;
+				PRODUCT_BUNDLE_IDENTIFIER = "edu.NCKU-WMMKS.Mainbot";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 3.0;
 			};
