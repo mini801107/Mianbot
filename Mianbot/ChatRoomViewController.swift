@@ -46,6 +46,15 @@ class ChatRoomViewController: JSQMessagesViewController, SFSpeechRecognizerDeleg
         login() { response in
             self.sessionID = response
             print("sessionID = \(self.sessionID)")
+            
+            if self.sessionID == "failed" {
+                self.logout() { response_logout in
+                    self.login() { response_login in
+                        self.sessionID = response_login
+                        print("sessionID = \(self.sessionID)")
+                    }
+                }
+            }
         }
         
         getToken() { response in
@@ -422,6 +431,22 @@ extension ChatRoomViewController {
                 let split_arr = set_cookie_str!.components(separatedBy: ";")
                 let sessionID = split_arr[0].components(separatedBy: "=")[1]
                 completion(sessionID)
+        }
+    }
+    
+    func logout(completion:@escaping (String) -> Void) {
+        Alamofire.request("http://140.116.245.146:8080/chatbot_logout/", method: .get)
+            .validate()
+            .responseString{ response in
+                let headers = response.response?.allHeaderFields
+                let set_cookie_str: String? = String(describing: headers?["Set-Cookie"])
+                if set_cookie_str == "nil" {
+                    print("Failed to logout")
+                    completion("failed")
+                    return
+                }
+                
+                completion("success")
         }
     }
     
